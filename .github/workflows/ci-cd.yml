@@ -1,16 +1,34 @@
-name: CI/CD Pipeline
+name: CI/CD for Go Application
 
 on:
   push:
     branches:
-      - main
-  release:
-    types: [created]  # Запуск при создании тега
+      - main  # Замените на вашу основную ветку
+    tags:
+      - v*.*.*  # Запускать job при добавлении тегов вида v1.0.0
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.20'  # Замените на нужную версию Go
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Run tests
+        run: go test ./...
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -18,37 +36,15 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
-
-      - name: Check Docker version
-        run: docker --version
-
-      - name: Build and test
-        run: |
-          docker build -t my-app .
-          echo "Build finished with exit code $?"
-          docker run --rm my-app parcel_test.go  # Замените на вашу команду для запуска тестов
-
-  publish:
-    runs-on: ubuntu-latest
-    needs: build
-    if: startsWith(github.ref, 'refs/tags/')  # Запуск только при добавлении тега
-
-    steps:
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Docker image
-        run: |
-          docker build -t my-app .
-          docker tag my-app:latest myusername/my-app:${{ github.ref_name }}
-          docker push myusername/my-app:${{ github.ref_name }}
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: your_dockerhub_username/your_image_name:${{ github.ref_name }}
