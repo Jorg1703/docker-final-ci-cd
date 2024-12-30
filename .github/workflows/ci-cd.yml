@@ -19,16 +19,20 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Cache Docker layers
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
 
+      - name: Check Docker version
+        run: docker --version
+
       - name: Build and test
         run: |
           docker build -t my-app .
+          echo "Build finished with exit code $?"
           docker run --rm my-app pytest  # Замените на вашу команду для запуска тестов
 
   publish:
