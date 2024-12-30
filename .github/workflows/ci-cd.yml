@@ -33,7 +33,7 @@ jobs:
         run: |
           docker build -t my-app .
           echo "Build finished with exit code $?"
-          docker run --rm my-app pytest  # Замените на вашу команду для запуска тестов
+          docker run --rm my-app parcel_test.go  # Замените на вашу команду для запуска тестов
 
   publish:
     runs-on: ubuntu-latest
