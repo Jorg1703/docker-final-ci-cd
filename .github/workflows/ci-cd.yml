@@ -61,4 +61,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: jorg1703/docker-final-ci-cd:tagname
+          tags: jorg1703/docker-final-ci-cd:${{ github.ref_name }}
