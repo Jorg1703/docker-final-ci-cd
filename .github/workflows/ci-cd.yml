@@ -33,6 +33,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Check secrets
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+            echo "DOCKER_USERNAME is not set"
+          else
+            echo "DOCKER_USERNAME is set"
+          fi
+
+          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
+            echo "DOCKER_PASSWORD is not set"
+          else
+            echo "DOCKER_PASSWORD is set"
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -47,4 +61,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: your_dockerhub_username/your_image_name:${{ github.ref_name }}
+          tags: jorg1703/docker-final-ci-cd:${{ github.ref_name }}
