@@ -61,7 +61,7 @@ jobs:
 
       - name: Set tag name
         id: tag_name
-        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" | tr -c '[:alnum:]._-/' '_' >> $GITHUB_ENV
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" | tr -c '[:alnum:]._-_' '_' >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
