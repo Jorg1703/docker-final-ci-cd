@@ -59,9 +59,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Set tag name
+        id: tag_name
+        run: echo "TAG_NAME=${GITHUB_REF#refs/tags/}" | tr -c '[:alnum:]._-/' '_' >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: jorg1703/docker-final-ci-cd:${{ github.ref_name }}
+          tags: jorg1703/docker-final-ci-cd:${{ env.TAG_NAME }}
